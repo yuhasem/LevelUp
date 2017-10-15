@@ -36,7 +36,7 @@ function Game() {
 	this.BASE_EXP_TO_LEVEL = 100;
 	this.GROWTH_EXP_TO_LEVEL = 1.2;
 	
-	// Game User Values 
+	// Game User/State Values 
 	this.level = 0;
 	this.exp = 0;
 	// expMax is kept as a variable for display convenience.
@@ -76,11 +76,24 @@ Game.prototype.levelUp = function() {
 }
 
 Game.prototype.save = function() {
-	
+	var gameState = {
+		'level': this.level,
+		'exp': this.exp,
+		'version': '0.0.1a',
+	}
+	localStorage.setItem('save', JSON.stringify(gameState));
+	console.log('Game Saved!');
 }
 
 Game.prototype.load = function() {
-	
+	var gameState = JSON.parse(localStorage.getItem('save'));
+	if (!gameState){
+		console.log("An error occurred during loading, most likely do to not having a save.");
+		return;
+	}
+	this.level = gameState.level;
+	this.exp = gameState.exp;
+	this.expMax = this.calculateExpMax();
 }
 
 Game.prototype.uiTick = function () {
