@@ -32,15 +32,18 @@ function onload() {
 function Game() {
 	// Constants and Game Data
 	this.MOUSE_MOVEMENT_EXP_GAIN = 1;
-	this.MOUSE_CLICK_EXP_GAIN = 10;
+	this.MOUSE_CLICK_EXP_GAIN = 15;
 	this.BASE_EXP_TO_LEVEL = 100;
-	this.GROWTH_EXP_TO_LEVEL = 1.2;
+	this.GROWTH_EXP_TO_LEVEL = 1.3;
+	this.RED_SHARD_PER_LEVEL_GAIN = 100;
 	
 	// Game User/State Values 
 	this.level = 0;
 	this.exp = 0;
 	// expMax is kept as a variable for display convenience.
 	this.expMax = this.calculateExpMax();
+	
+	this.redShards = 0;
 	
 	// Other Game value
 	this.timeoutPointer;
@@ -58,6 +61,14 @@ Game.prototype.bodyClick = function() {
 	this.addExp(this.MOUSE_CLICK_EXP_GAIN);
 }
 
+Game.prototype.addRedShards = function(amount) {
+	// Can't reduce it below 0.
+	if (amount < 0 && this.redShards < -amount){
+		return;
+	}
+	this.redShards += amount;
+}
+
 Game.prototype.addExp = function(amount) {
 	if (amount <= 0){
 		return;
@@ -73,12 +84,14 @@ Game.prototype.addExp = function(amount) {
 Game.prototype.levelUp = function() {
 	this.level++;
 	// Level specific unlocks would be handled here as well.
+	this.addRedShards(this.level * this.RED_SHARD_PER_LEVEL_GAIN);
 }
 
 Game.prototype.save = function() {
 	var gameState = {
 		'level': this.level,
 		'exp': this.exp,
+		'redShards': this.redShards,
 		'version': '0.0.1a',
 	}
 	localStorage.setItem('save', JSON.stringify(gameState));
@@ -94,6 +107,7 @@ Game.prototype.load = function() {
 	this.level = gameState.level;
 	this.exp = gameState.exp;
 	this.expMax = this.calculateExpMax();
+	if (gameState.redShards) this.redShards = gameState.redShards;
 }
 
 Game.prototype.uiTick = function () {
