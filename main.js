@@ -35,7 +35,7 @@ function Game() {
 	this.MOUSE_CLICK_EXP_GAIN = 15;
 	this.BASE_EXP_TO_LEVEL = 100;
 	this.GROWTH_EXP_TO_LEVEL = 1.3;
-	this.RED_SHARD_PER_LEVEL_GAIN = 100;
+	this.BLUE_SHARD_PER_LEVEL_GAIN = 100;
 	
 	// Game User/State Values 
 	this.level = 0;
@@ -43,7 +43,7 @@ function Game() {
 	// expMax is kept as a variable for display convenience.
 	this.expMax = this.calculateExpMax();
 	
-	this.redShards = 0;
+	this.blueShards = 0;
 	
 	// Other Game value
 	this.timeoutPointer;
@@ -61,12 +61,12 @@ Game.prototype.bodyClick = function() {
 	this.addExp(this.MOUSE_CLICK_EXP_GAIN);
 }
 
-Game.prototype.addRedShards = function(amount) {
+Game.prototype.addBlueShards = function(amount) {
 	// Can't reduce it below 0.
-	if (amount < 0 && this.redShards < -amount){
+	if (amount < 0 && this.blueShards < -amount){
 		return;
 	}
-	this.redShards += amount;
+	this.blueShards += amount;
 }
 
 Game.prototype.addExp = function(amount) {
@@ -84,14 +84,14 @@ Game.prototype.addExp = function(amount) {
 Game.prototype.levelUp = function() {
 	this.level++;
 	// Level specific unlocks would be handled here as well.
-	this.addRedShards(this.level * this.RED_SHARD_PER_LEVEL_GAIN);
+	this.addBlueShards(this.level * this.BLUE_SHARD_PER_LEVEL_GAIN);
 }
 
 Game.prototype.save = function() {
 	var gameState = {
 		'level': this.level,
 		'exp': this.exp,
-		'redShards': this.redShards,
+		'blueShards': this.blueShards,
 		'version': '0.0.1a',
 	}
 	localStorage.setItem('save', JSON.stringify(gameState));
@@ -101,13 +101,13 @@ Game.prototype.save = function() {
 Game.prototype.load = function() {
 	var gameState = JSON.parse(localStorage.getItem('save'));
 	if (!gameState){
-		console.log("An error occurred during loading, most likely do to not having a save.");
+		console.log("An error occurred during loading, most likely due to not having a save.");
 		return;
 	}
-	this.level = gameState.level;
-	this.exp = gameState.exp;
+	if (gameState.level) this.level = gameState.level;
+	if (gameState.exp) this.exp = gameState.exp;
 	this.expMax = this.calculateExpMax();
-	if (gameState.redShards) this.redShards = gameState.redShards;
+	if (gameState.blueShards) this.blueShards = gameState.blueShards;
 }
 
 Game.prototype.uiTick = function () {
